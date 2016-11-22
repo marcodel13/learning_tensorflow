@@ -1,0 +1,51 @@
+07_lstm
+
+parameters 
+
+1. lstm_size = 28 
+2. time_step_size = 28
+3. batch_size = 128
+4. test_size = 256
+
+
+
+
+operations
+
+1. define weights
+def init_weights(shape):
+    return tf.Variable(tf.random_normal(shape, stddev=0.01))
+W = init_weights([lstm_size, 10])
+B = init_weights([10])
+
+2. define placeholders
+X = tf.placeholder("float", [None, 28, 28])
+Y = tf.placeholder("float", [None, 10])
+
+3. transpose, reshape and split
+def model(X, W, B, lstm_size):
+    # X, input shape: (batch_size, time_step_size, input_vec_size)
+    XT = tf.transpose(X, [1, 0, 2])  # permute time_step_size and batch_size
+    XR = tf.reshape(XT, [-1, lstm_size]) # each row has input for each lstm cell (lstm_size=input_vec_size)
+    # XR shape: (time_step_size * batch_size, input_vec_size)
+    X_split = tf.split(0, time_step_size, XR) # split them to time_step_size (28 arrays)
+    # Each array shape: (batch_size, input_vec_size)
+
+4. define lstm 
+lstm = tf.nn.rnn_cell.BasicLSTMCell(lstm_size, forget_bias=1.0, state_is_tuple=True)
+
+5. get lstm cell output
+outputs, _states = tf.nn.rnn(lstm, X_split, dtype=tf.float32)
+
+6. prediction
+tf.matmul(outputs[-1], W) + B, lstm.state_size # this is the last part of the function 'model'
+py_x, state_size = model(X, W, B, lstm_size)
+
+7.cost function
+cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(py_x, Y))
+
+8. optimizer + minimize 
+train_op = tf.train.RMSPropOptimizer(0.001, 0.9).minimize(cost)
+
+9. initialize parameters
+tf.initialize_all_variables().run()

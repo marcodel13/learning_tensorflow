@@ -8,18 +8,22 @@ import input_data
 def init_weights(shape):
     return tf.Variable(tf.random_normal(shape, stddev=0.01))
 
+w_h = init_weights([784, 625])
+w_h2 = init_weights([625, 625])
+w_o = init_weights([625, 10])
+
 
 def model(X, w_h, w_h2, w_o, p_keep_input, p_keep_hidden): # this network is the same as the previous one except with an extra hidden layer + dropout
 
-    # X = tf.nn.dropout(X, p_keep_input)
+    X = tf.nn.dropout(X, p_keep_input)
 
     h = tf.nn.relu(tf.matmul(X, w_h))
 
-    # h = tf.nn.dropout(h, p_keep_hidden)
+    h = tf.nn.dropout(h, p_keep_hidden)
 
     h2 = tf.nn.relu(tf.matmul(h, w_h2))
 
-    # h2 = tf.nn.dropout(h2, p_keep_hidden)
+    h2 = tf.nn.dropout(h2, p_keep_hidden)
 
     return tf.matmul(h2, w_o)
 
@@ -30,9 +34,6 @@ trX, trY, teX, teY = mnist.train.images, mnist.train.labels, mnist.test.images, 
 X = tf.placeholder("float", [None, 784])
 Y = tf.placeholder("float", [None, 10])
 
-w_h = init_weights([784, 625])
-w_h2 = init_weights([625, 625])
-w_o = init_weights([625, 10])
 
 p_keep_input = tf.placeholder("float")
 p_keep_hidden = tf.placeholder("float")

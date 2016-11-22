@@ -1,0 +1,48 @@
+basic_lstm
+
+parameters 
+
+1. num_hidden = 24
+2.
+3. batch_size = 1000
+4. 
+5. epoch = 5000
+
+
+
+operations
+
+1. define weights
+weight = tf.Variable(tf.truncated_normal([num_hidden, int(target.get_shape()[1])]))
+bias = tf.Variable(tf.constant(0.1, shape=[target.get_shape()[1]]))
+
+2. define placeholders
+data = tf.placeholder(tf.float32, [None, 20,1]) #Number of examples, number of input, dimension of each input
+target = tf.placeholder(tf.float32, [None, 21])
+
+3. transpose
+val = tf.transpose(val, [1, 0, 2])
+
+
+4. define lstm
+cell = tf.nn.rnn_cell.LSTMCell(num_hidden,state_is_tuple=True)
+
+5. get lstm cell output
+val, state = tf.nn.dynamic_rnn(cell, data, dtype=tf.float32) #We unroll the network and pass the data to it and store the output in val
+
+6. prediction
+prediction = tf.nn.softmax(tf.matmul(last, weight) + bias)
+
+7. cost function
+error = tf.reduce_mean(tf.cast(mistakes, tf.float32))
+
+cross_entropy = -tf.reduce_sum(target * tf.log(prediction))
+
+8. optimizer
+optimizer = tf.train.AdamOptimizer()
+
+8a.minimize
+minimize = optimizer.minimize(cross_entropy)
+
+9. initialize parameters
+init_op = tf.initialize_all_variables()
